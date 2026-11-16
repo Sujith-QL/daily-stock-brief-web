@@ -1,0 +1,9 @@
+# Frontend lives on Netlify; the Python backend stays on Render.
+# Every /api/* call from the page is forwarded to Render, so the page's
+# code needs no changes and there are no CORS problems.
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://daily-stock-brief.onrender.com/api/:splat"
+  status = 200
+  force = true
