@@ -35,7 +35,7 @@ jobs:
       - name: Install packages
         run: |
           pip install -r requirements.txt
-          pip install nse || echo "optional 'nse' package not installed"
+          pip install "nse==1.0.3" || echo "optional 'nse' package not installed"
 
       - name: Restore previous data
         run: |
