@@ -1,1 +1,59 @@
+name: Update market data
 
+on:
+  schedule:
+    - cron: "45 10 * * 1-5"       # 16:15 IST, after the close: full market scan
+    - cron: "20 3-10 * * 1-5"     # hourly, 08:50-16:50 IST: news, results, IPO, prices
+    - cron: "5 * * * *"           # every hour, all week: gold rate only (about 1 minute)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full = whole-market scan, light = news/prices, gold = gold rate only"
+        type: choice
+        default: full
+        options: [full, light, gold]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install packages
+        run: |
+          pip install -r requirements.txt
+          pip install nse || echo "optional 'nse' package not installed"
+
+      - name: Restore previous data
+        run: |
+          git fetch --depth=1 origin data || true
+          git checkout origin/data -- data 2>/dev/null || mkdir -p data
+
+      - name: Fetch data
+        env:
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || (github.event.schedule == '45 10 * * 1-5' && 'full' || (github.event.schedule == '5 * * * *' && 'gold' || 'light')) }}
+        run: python fetch_data.py "$MODE"
+
+      - name: Publish data branch
+        run: |
+          rm -rf /tmp/pub && mkdir /tmp/pub && cp -r data /tmp/pub/data
+          cd /tmp/pub
+          git init -q -b data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Update data $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" data
