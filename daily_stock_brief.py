@@ -42,7 +42,7 @@ NIFTY_50 = sorted(set([
     "JSWSTEEL.NS", "KOTAKBANK.NS", "LT.NS", "M&M.NS", "MARUTI.NS",
     "NTPC.NS", "NESTLEIND.NS", "ONGC.NS", "POWERGRID.NS", "RELIANCE.NS",
     "SBILIFE.NS", "SHRIRAMFIN.NS", "SBIN.NS", "SUNPHARMA.NS", "TCS.NS",
-    "TATACONSUM.NS", "TATAMOTORS.NS", "TATASTEEL.NS", "TECHM.NS", "TITAN.NS",
+    "TATACONSUM.NS", "TMPV.NS", "TMCV.NS", "TATASTEEL.NS", "TECHM.NS", "TITAN.NS",
     "TRENT.NS", "ULTRACEMCO.NS", "WIPRO.NS",
 ]))
 
@@ -108,7 +108,7 @@ COMPANY_NAMES = {
     "POWERGRID.NS": "Power Grid Corporation", "RELIANCE.NS": "Reliance Industries",
     "SBILIFE.NS": "SBI Life Insurance", "SHRIRAMFIN.NS": "Shriram Finance",
     "SBIN.NS": "State Bank of India", "SUNPHARMA.NS": "Sun Pharma", "TCS.NS": "Tata Consultancy Services",
-    "TATACONSUM.NS": "Tata Consumer Products", "TATAMOTORS.NS": "Tata Motors",
+    "TATACONSUM.NS": "Tata Consumer Products", "TMPV.NS": "Tata Motors Passenger Vehicles", "TMCV.NS": "Tata Motors (Commercial Vehicles)",
     "TATASTEEL.NS": "Tata Steel", "TECHM.NS": "Tech Mahindra", "TITAN.NS": "Titan Company",
     "TRENT.NS": "Trent", "ULTRACEMCO.NS": "UltraTech Cement", "WIPRO.NS": "Wipro",
     "ABB.NS": "ABB India", "ADANIENSOL.NS": "Adani Energy Solutions",

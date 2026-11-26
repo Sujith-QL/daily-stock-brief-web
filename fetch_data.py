@@ -124,11 +124,19 @@ def job_results():
 
 
 def job_ipo():
-    return A.get_ipo_dashboard(force_refresh=True)
+    data = A.get_ipo_dashboard(force_refresh=True)
+    if not any(data.get(k) for k in ("current", "upcoming", "recent")) and read("ipo"):
+        print("  IPO feed returned nothing - keeping previous file")
+        return None
+    return data
 
 
 def job_dividends():
-    return A.get_dividend_picks_cached(force_refresh=True)
+    data = A.get_dividend_picks_cached(force_refresh=True)
+    if not data and read("dividends"):
+        print("  dividend feed returned nothing - keeping previous file")
+        return None
+    return data
 
 
 SUGGESTION_TTL_SECONDS = 6 * 3600
