@@ -22,6 +22,7 @@ import yfinance as yf
 import app as A                       # the Flask server only starts under __main__, so this is safe
 import daily_stock_brief as D
 from daily_stock_brief import WATCHLIST, fetch_history, get_fundamental_picks, get_result_suggestion
+from search_job import build_search   # builds data/search.json for the stock search box
 
 DATA = "data"
 os.makedirs(os.path.join(DATA, "cache"), exist_ok=True)
@@ -219,6 +220,25 @@ def job_history():
     return out or None
 
 
+def job_search():
+    """Build search.json from the watchlist, the latest report's stocks and symbols.txt."""
+    syms = set(tracked_symbols())
+    syms.update((read("report") or {}).get("liquid_stocks") or [])
+    try:
+        with open("symbols.txt") as f:
+            for line in f:
+                s = line.strip().upper()
+                if s and not s.startswith("#"):
+                    syms.add(s if "." in s else s + ".NS")
+    except FileNotFoundError:
+        pass
+    names = {}
+    for p in (read("fundamentals") or {}).get("picks", []):
+        if p.get("symbol") and p.get("name"):
+            names[p["symbol"]] = p["name"]
+    return build_search(syms, names)
+
+
 def job_gold():
     """Global gold price (COMEX gold futures, USD per troy ounce) + USD/INR -> India-equivalent rates."""
     OZ_GRAMS = 31.1035
@@ -287,6 +307,7 @@ def main():
         report = task("report", job_report)
         task("fundamentals", lambda: job_fundamentals(report))
         task("history", job_history)
+        task("search", job_search)
         task("dividends", job_dividends)
     elif read("dividends") is None:
         task("dividends", job_dividends)
