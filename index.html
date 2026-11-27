@@ -85,7 +85,17 @@
         });
         return reply({ status: 'ok', data: out });
       }
-      if (p === '/api/search') return reply({ status: 'error', message: 'Searching any stock needs a live server, which this version does not have. Stocks in the daily report, watchlist and fundamentals are still shown.' });
+      if (p === '/api/search') {
+        const q = (u.searchParams.get('q') || '').trim().toUpperCase().replace(/\.(NS|BO)$/, '');
+        const all = await loadOrNull('search');
+        if (!all) return reply({ status: 'error', message: 'Search data has not been published yet. Run the "Update market data" workflow in full mode.' });
+        if (!q) return reply({ status: 'error', message: 'Type a stock name or symbol.' });
+        if (all[q]) return reply({ status: 'ok', data: all[q] });
+        const hits = Object.values(all).filter(x => x.symbol_short.indexOf(q) !== -1 || (x.name || '').toUpperCase().indexOf(q) !== -1);
+        if (hits.length === 1) return reply({ status: 'ok', data: hits[0] });
+        if (hits.length > 1) return reply({ status: 'ok', data: { status: 'multiple_matches', query: q, candidates: hits.slice(0, 15).map(x => ({ name: x.name, symbol: x.symbol })) } });
+        return reply({ status: 'error', message: '"' + q + '" is not in the searchable list. Add it to symbols.txt in the repo and run a full update.' });
+      }
       if (p === '/api/ipo-gmp')  return reply({ status: 'error', message: 'In this version, IPO GMP is edited in the ipo_gmp.json file in the GitHub repo.' }, 400);
       return reply({ status: 'error', message: 'Not available in static mode' }, 404);
     } catch (e) {
